@@ -59,7 +59,11 @@ Look for an existing memoir project:
    ```json
    { "ownerName": "<name>", "siteTitle": "<name>'s Memoir" }
    ```
-5. The repo comes with an empty `trips.json` and clean page templates — no cleanup needed.
+5. Create `src/data/trips.json` with an empty array:
+   ```json
+   []
+   ```
+6. The page templates (`src/app/page.tsx` and `src/app/trips/[slug]/page.tsx`) have empty marker blocks ready for imports — no cleanup needed.
 
 ## Step 1: Parse the Photo Source
 
