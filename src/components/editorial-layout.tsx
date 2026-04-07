@@ -18,8 +18,16 @@ interface Photo {
   coordinates: string | null;
 }
 
+interface PhotoSection {
+  label: string;
+  sublabel?: string;
+  photos: Photo[];
+  startIndex: number;
+}
+
 interface EditorialLayoutProps {
   photos: Photo[];
+  sections?: PhotoSection[];
 }
 
 function formatPhotoDate(dateStr: string): string {
@@ -112,7 +120,7 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
   );
 }
 
-export function EditorialLayout({ photos }: EditorialLayoutProps) {
+export function EditorialLayout({ photos, sections }: EditorialLayoutProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [fading, setFading] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -161,79 +169,76 @@ export function EditorialLayout({ photos }: EditorialLayoutProps) {
   return (
     <>
       <div className="editorial-flow">
-        {photos.map((photo, i) => {
-          const placement = getPlacement(i, photo.aspectRatio);
-
-          // Occasionally inject a location/date marker
-          const prevPhoto = i > 0 ? photos[i - 1] : null;
-          const showMarker =
-            i === 0 ||
-            (photo.date && prevPhoto?.date &&
-              photo.date.split(" ")[0] !== prevPhoto.date.split(" ")[0]);
+        {(sections || [{ label: "", photos, startIndex: 0 }]).map((section, si) => {
+          // Track running photo index for placement continuity across sections
+          const globalOffset = section.startIndex;
 
           return (
-            <div key={photo.id}>
-              {showMarker && photo.date && (
+            <div key={si} className="photo-section">
+              {sections && (
                 <ScrollReveal>
                   <div
                     className="editorial-marker"
-                    style={{ marginTop: i === 0 ? "0" : "16vh" }}
+                    style={{ marginTop: si === 0 ? "0" : "16vh" }}
                   >
                     <p className="font-serif text-2xl font-light tracking-tight sm:text-3xl">
-                      {new Date(photo.date).toLocaleDateString("en-US", {
-                        weekday: "long",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {section.label}
                     </p>
-                    {photo.region && (
+                    {section.sublabel && (
                       <p className="mt-1 font-mono text-[11px] font-light tracking-wide text-muted">
-                        {photo.region}
+                        {section.sublabel}
                       </p>
                     )}
                   </div>
                 </ScrollReveal>
               )}
 
-              <ScrollReveal>
-                <div
-                  className="editorial-item"
-                  style={{
-                    width: placement.width,
-                    marginLeft: placement.marginLeft,
-                    marginTop: placement.marginTop,
-                  }}
-                >
-                  <div
-                    className="photo-card"
-                    onClick={() => openLightbox(i)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && openLightbox(i)}
-                  >
-                    <img
-                      src={photo.src}
-                      alt=""
-                      width={photo.width}
-                      height={photo.height}
-                      loading={i < 3 ? "eager" : "lazy"}
-                      style={{ display: "block", width: "100%", height: "auto" }}
-                    />
-                    <div className="photo-overlay">
-                      {photo.city && (
-                        <p className="font-serif text-lg font-light text-white sm:text-xl">
-                          {photo.city}
-                        </p>
-                      )}
-                      {photo.date && (
-                        <p className="mt-1 font-mono text-[10px] font-light tracking-wider text-white/50">
-                          {formatPhotoDate(photo.date)}
-                        </p>
-                      )}
+              {section.photos.map((photo, pi) => {
+                const globalIndex = globalOffset + pi;
+                const placement = getPlacement(globalIndex, photo.aspectRatio);
+
+                return (
+                  <ScrollReveal key={photo.id}>
+                    <div
+                      className="editorial-item"
+                      style={{
+                        width: placement.width,
+                        marginLeft: placement.marginLeft,
+                        marginTop: placement.marginTop,
+                      }}
+                    >
+                      <div
+                        className="photo-card"
+                        onClick={() => openLightbox(globalIndex)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => e.key === "Enter" && openLightbox(globalIndex)}
+                      >
+                        <img
+                          src={photo.src}
+                          alt=""
+                          width={photo.width}
+                          height={photo.height}
+                          loading={globalIndex < 3 ? "eager" : "lazy"}
+                          style={{ display: "block", width: "100%", height: "auto" }}
+                        />
+                        <div className="photo-overlay">
+                          {photo.city && (
+                            <p className="font-serif text-lg font-light text-white sm:text-xl">
+                              {photo.city}
+                            </p>
+                          )}
+                          {photo.date && (
+                            <p className="mt-1 font-mono text-[10px] font-light tracking-wider text-white/50">
+                              {formatPhotoDate(photo.date)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </ScrollReveal>
+                  </ScrollReveal>
+                );
+              })}
             </div>
           );
         })}

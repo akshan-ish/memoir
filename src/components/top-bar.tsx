@@ -113,7 +113,7 @@ export function TopBar({ layout, onLayoutChange, density, onDensityChange, hasCu
             onClick={() => setOpen(!open)}
             aria-label="Settings"
           >
-            ✳︎
+            Settings
           </button>
           {open && (
             <div className="topbar-dropdown">

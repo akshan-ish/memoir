@@ -1,5 +1,7 @@
 import { PageContent } from "@/components/page-content";
-import trips from "@/data/trips.json";
+import tripsData from "@/data/trips.json";
+
+const trips = tripsData as Array<{ slug: string; manifest: string; photosDir: string }>;
 import {
   formatDateRange,
   preparePhotos,
@@ -16,7 +18,10 @@ const manifests: Record<string, TripManifest> = {
 };
 
 export function generateStaticParams() {
-  return trips.map((trip) => ({ slug: trip.slug }));
+  const params = trips.map((trip) => ({ slug: trip.slug }));
+  // Static export requires at least one param for dynamic routes;
+  // include a placeholder that resolves to "trip not found" when no trips exist yet
+  return params.length > 0 ? params : [{ slug: "_" }];
 }
 
 export default async function TripPage({

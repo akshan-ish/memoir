@@ -145,12 +145,15 @@ body {
 }
 
 .topbar-settings-toggle {
-  font-size: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.15em;
   color: var(--muted);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 0.25rem 0;
   line-height: 1;
   transition: color 0.2s ease;
 }
@@ -252,6 +255,21 @@ body {
   );
   mask-image: linear-gradient(to top, black 0%, transparent 100%);
   -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
+}
+
+/* ─── Layout Divider ──────────────────────────────────────────────────── */
+
+.layout-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.layout-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ─── Section Headings ─────────────────────────────────────────────────── */

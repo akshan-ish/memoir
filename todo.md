@@ -5,10 +5,10 @@
 - **Edit view** — user can remove photos from the memoir. Toggled via a button. Click photos to mark for removal, confirm to re-generate.
 - **Hosting / distribution** — desktop app (Electron/Tauri) is probably the sweet spot: local, user-friendly, no terminal. Start with CLI or Claude Code skill as MVP, graduate to desktop app. Could also do one-click deploy to Vercel/Netlify for sharing.
 - **Map mode** — view photos plotted on a map by GPS coordinates. Click a pin to see the photo. Could use a timeline scrubber to animate the trip route.
-- **Date-range photo selection** — instead of pointing to a folder/album, select photos by date range ("photos from Aug 1-31 2024"). Can query Photos.app via AppleScript date filters. Closer to the start/stop memoir vision.
 - **Video integration** — include short video clips in the memoir. Could auto-extract a still frame for the grid + play on hover/click. Need to handle MOV/MP4, extract thumbnails, maybe auto-trim to key moments. Consider video as part of the editorial layout.
 - **Ambient music** — optional background music while browsing. Location-specific: pull ambient/local music based on trip country (e.g. Vietnamese folk for Vietnam, bossa nova for Brazil). Could use Spotify embeds, Apple Music API, or bundle royalty-free ambient tracks. Subtle play/pause control in the corner.
 - **Onboarding and setup** — first-run experience for new users. Guide through pointing at a photo folder, processing, and generating the first memoir. Could be a wizard-style flow or a simple CLI walkthrough. Should feel welcoming and low-friction.
+- **People filter** — detect faces in photos and let users filter/remove photos by person. Could use face detection (e.g. face-api.js, Sharp-based, or native ML) to cluster by identity, then toggle people in/out of the memoir.
 
 ## Done
 
@@ -41,3 +41,5 @@
 - Screenshot and document filtering — PNG detection, EXIF software field, content analysis (flat colors, low saturation, device resolutions)
 - Curated mini mode (60 photos) — MMR algorithm with proportional day allocation, quality + diversity optimization. Instant toggle in dropdown.
 - Left side nav — fixed rail with proximity-reactive lines, full-page blur overlay, date/location hierarchy, click-to-scroll navigation
+- Date-range photo selection — export from Photos.app by date range via AppleScript, integrated into /memoir skill
+- Onboarding skill — /memoir Claude Code skill handles fresh setup, album/folder/date-range input, pipeline, and site registration

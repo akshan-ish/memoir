@@ -93,7 +93,7 @@ export function PageContent({
 
   return (
     <>
-      {layout === "grid" && <SideNav sections={indexedSections} />}
+      <SideNav sections={indexedSections} />
       <main className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:pl-20 lg:pr-16">
         <TopBar
           layout={layout}
@@ -120,12 +120,17 @@ export function PageContent({
           </p>
         </header>
 
+        {/* Divider */}
+        <div className="layout-divider">
+          <div className="layout-divider-line" />
+        </div>
+
         {/* Photo content */}
         <section className="pb-24 sm:pb-32 lg:pb-40">
           {layout === "grid" ? (
             <MasonryGrid sections={indexedSections} allPhotos={activePhotos} />
           ) : (
-            <EditorialLayout photos={activePhotos} />
+            <EditorialLayout photos={activePhotos} sections={indexedSections} />
           )}
         </section>
 

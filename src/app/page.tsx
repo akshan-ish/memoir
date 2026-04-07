@@ -1,5 +1,7 @@
 import Link from "next/link";
-import trips from "@/data/trips.json";
+import tripsData from "@/data/trips.json";
+
+const trips = tripsData as Array<{ slug: string; manifest: string; photosDir: string }>;
 import { formatDateRange, type TripManifest } from "@/lib/trip-utils";
 import { LandingTheme } from "@/components/landing-theme";
 

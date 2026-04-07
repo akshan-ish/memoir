@@ -1,17 +1,1 @@
-[
-  {
-    "slug": "vietnam",
-    "manifest": "manifest.json",
-    "photosDir": "/photos"
-  },
-  {
-    "slug": "france",
-    "manifest": "manifest-france.json",
-    "photosDir": "/photos-france"
-  },
-  {
-    "slug": "patagonia",
-    "manifest": "manifest-patagonia.json",
-    "photosDir": "/photos-patagonia"
-  }
-]
+[]
