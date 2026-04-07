@@ -840,21 +840,28 @@ body {
 }
 
 @media (max-width: 640px) {
+  .trip-carousel-viewport {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   .trip-carousel-header {
-    padding: 0 1.5rem;
+    padding: 1.25rem 1.5rem;
   }
 
   .trip-carousel {
-    gap: 2rem;
-    padding: 0 1.5rem;
+    flex-direction: column;
+    gap: 3rem;
+    padding: 25vh 1.5rem 4rem;
   }
 
   .trip-carousel-card {
-    width: 260px;
+    width: 100%;
   }
 
-  .carousel-edge-fade {
-    width: 40px;
+  .carousel-edge-fade--left,
+  .carousel-edge-fade--right {
+    display: none;
   }
 }
 
