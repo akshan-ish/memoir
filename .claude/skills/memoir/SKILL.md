@@ -149,7 +149,7 @@ Ask: "Look good? I'll add it to your memoir."
 Run `npx next build` to make sure everything compiles.
 
 If it succeeds:
-"Your <trip-title> collection is ready! Run `npx next dev -p 3456` to see it at http://localhost:3456"
+"Your <trip-title> collection is ready! Run `npx next dev -p 3457` to see it at http://localhost:3457"
 
 If the build fails, diagnose and fix the issue before telling the user it's ready.
 
