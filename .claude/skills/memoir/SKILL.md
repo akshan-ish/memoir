@@ -54,8 +54,9 @@ Determine what kind of source the user specified from `$ARGUMENTS`:
 - Will need to export via AppleScript first.
 
 **Date range** — if they mention dates:
-- Examples: `photos from oct 17 to nov 11 2025`, `pictures taken in august 2024`
-- Not yet supported. Tell the user: "Date range selection is coming soon. For now, you can either point me to a folder of photos, or tell me a Photos.app album name."
+- Examples: `photos from oct 17 to nov 11 2025`, `pictures taken in august 2024`, `December 25-30 2017`
+- Parse whatever format the user gives into YYYY-MM-DD start and end dates. If only a month is given, use the full month.
+- Will need to export from Photos.app by date range first.
 
 If the input is ambiguous, ask one clarifying question.
 
@@ -82,6 +83,12 @@ osascript -e 'tell application "Photos"
 end tell'
 ```
 Then clean up video files: `rm -f /tmp/memoir-export-<slug>/*.{MOV,MP4,mov,mp4}`
+
+**If date range:**
+```bash
+node scripts/export-by-date.mjs --start <YYYY-MM-DD> --end <YYYY-MM-DD> --output /tmp/memoir-export-<slug>
+```
+This queries Photos.app for all photos in the range, exports originals in batches, and cleans up video files. The exported folder becomes the photo source for the pipeline.
 
 **If folder:** Use the path directly, no export needed.
 
