@@ -15,9 +15,17 @@ If the input is empty or missing, ask the user: "Where are your photos? You can 
 
 ## Step 0: Find or Create the Memoir Project
 
-Check if a memoir project already exists by looking for a `package.json` with `"name": "memoir"` in the current directory or common locations.
+Look for an existing memoir project:
+1. Check the current directory for `package.json` with `"name": "memoir"`
+2. Check for a `memoir/` subdirectory in the current directory
+3. Search common locations: `~/memoir`, `~/Desktop/memoir`, `~/Projects/memoir`
 
-**If no memoir project exists — this is a fresh setup:**
+**If a memoir project is found:**
+- Ask the user: "I found an existing memoir project at `<path>`. Add a new trip to it, or start fresh?"
+  - **Add to existing** — `cd` into the project directory. Read `src/data/config.json`. If it's missing `ownerName`, ask for their name.
+  - **Start fresh** — ask where to create the new project and proceed with fresh setup below.
+
+**If no memoir project is found — fresh setup:**
 
 1. Ask the user: "What name should we use for your memoir? (e.g., 'Alex' → Alex's Memoir)"
 2. Ask: "Where should I create the project? (default: `./memoir`)"
@@ -31,15 +39,7 @@ Check if a memoir project already exists by looking for a `package.json` with `"
    ```json
    { "ownerName": "<name>", "siteTitle": "<name>'s Memoir" }
    ```
-5. Clear out any existing demo/sample trip data:
-   - Empty `src/data/trips.json` to `[]`
-   - Remove any existing manifest files (`src/data/manifest*.json`) 
-   - Remove any existing photo directories in `public/photos*`
-   - Clean up the static imports in `src/app/page.tsx` and `src/app/trips/[slug]/page.tsx` — remove all hardcoded manifest imports and reset the `manifests` object to `{}`
-
-**If memoir project exists:**
-- Read `src/data/config.json`. If it's missing `ownerName`, ask: "What name should we use for your memoir?"
-- `cd` into the project directory for all subsequent steps.
+5. The repo comes with an empty `trips.json` and clean page templates — no cleanup needed.
 
 ## Step 1: Parse the Photo Source
 
@@ -113,15 +113,9 @@ Ask: "Look good? I'll add it to your memoir."
 }
 ```
 
-2. Add the manifest import to `src/app/page.tsx`:
-   - Add `import <slug>Manifest from "@/data/manifest-<slug>.json";` with the other imports
-   - Add `<slug>: <slug>Manifest as unknown as TripManifest,` to the manifests object
-
-3. Add the same manifest import to `src/app/trips/[slug]/page.tsx`:
-   - Add `import <slug>Manifest from "@/data/manifest-<slug>.json";` with the other imports
-   - Add `<slug>: <slug>Manifest as unknown as TripManifest,` to the manifests object
-
-**Important:** If this is the first trip being added (trips.json was empty), the page files may have an empty manifests object — that's fine, just add the new entry.
+2. In both `src/app/page.tsx` and `src/app/trips/[slug]/page.tsx`, add the manifest import and entry using the marker comments:
+   - Add `import <slug>Manifest from "@/data/manifest-<slug>.json";` on the line BEFORE `// --- END MANIFESTS ---`
+   - Add `<slug>: <slug>Manifest as unknown as TripManifest,` on the line BEFORE `// --- END MANIFEST_ENTRIES ---`
 
 ## Step 6: Verify & Launch
 
