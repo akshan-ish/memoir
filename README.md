@@ -10,6 +10,10 @@ You'll need [Claude Code](https://claude.ai/code) installed.
 
 ### 1. Install the skill
 
+Give Claude Code the link to this Github repo and ask it to install the memoir skill
+
+or if you want to do it manually
+
 ```bash
 mkdir -p ~/.claude/skills/memoir
 curl -o ~/.claude/skills/memoir/SKILL.md \
