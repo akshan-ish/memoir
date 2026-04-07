@@ -1,65 +1,89 @@
-import Image from "next/image";
+import Link from "next/link";
+import trips from "@/data/trips.json";
+import { formatDateRange, type TripManifest } from "@/lib/trip-utils";
+import { LandingTheme } from "@/components/landing-theme";
+
+// --- MANIFESTS: added by /memoir skill (do not edit this block) ---
+// --- END MANIFESTS ---
+
+const manifests: Record<string, TripManifest> = {
+  // --- MANIFEST_ENTRIES: added by /memoir skill (do not edit this block) ---
+  // --- END MANIFEST_ENTRIES ---
+};
+
+let siteTitle = "Memoir";
+try { siteTitle = require("@/data/config.json").siteTitle; } catch {};
 
 export default function Home() {
+  const tripData = trips.map((trip) => {
+    const m = manifests[trip.slug];
+    // Pick a hero photo — the one with best aspect ratio for a cover
+    const hero = m.photos.reduce((best, p) =>
+      p.aspectRatio > best.aspectRatio ? p : best
+    , m.photos[0]);
+
+    return {
+      slug: trip.slug,
+      title: m.title,
+      dateRange: formatDateRange(m.dateRange.start, m.dateRange.end),
+      photoCount: m.photoCount,
+      heroSrc: `${trip.photosDir}/${hero.src.split("/").pop()}`,
+      heroThumb: `${trip.photosDir}/${hero.thumb.split("/").pop()}`,
+      regions: [...new Set(m.photos.map((p) => p.region).filter(Boolean))].slice(0, 3),
+    };
+  });
+
+  // Sort newest first
+  tripData.sort((a, b) => {
+    const mA = manifests[a.slug];
+    const mB = manifests[b.slug];
+    return new Date(mB.dateRange.start).getTime() - new Date(mA.dateRange.start).getTime();
+  });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <>
+      <LandingTheme />
+      <div className="carousel-edge-fade carousel-edge-fade--left" />
+      <div className="carousel-edge-fade carousel-edge-fade--right" />
+      <main className="trip-carousel-viewport">
+        <div className="trip-carousel-header header-reveal">
+          <p className="font-mono text-[10px] font-light uppercase tracking-[0.25em] text-muted">
+            {siteTitle}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        <section className="trip-carousel">
+          {tripData.map((trip, i) => (
+            <Link
+              key={trip.slug}
+              href={`/trips/${trip.slug}`}
+              className="trip-carousel-card header-reveal"
+              style={{ animationDelay: `${0.2 + i * 0.15}s` }}
+            >
+              <div className="trip-carousel-info">
+                <h2 className="font-serif text-2xl font-light tracking-tight sm:text-3xl">
+                  {trip.title}
+                </h2>
+                <p className="mt-2 font-mono text-[10px] font-light tracking-wide text-muted">
+                  {trip.dateRange}
+                </p>
+                <p className="mt-1 font-mono text-[10px] font-light tracking-wide text-muted">
+                  {trip.photoCount} photographs
+                </p>
+                <p className="mt-2 font-serif text-sm font-light italic text-muted" style={{ minHeight: '1.25em' }}>
+                  {trip.regions.length > 0 ? trip.regions.join(" \u00b7 ") : "\u00a0"}
+                </p>
+              </div>
+              <div className="trip-carousel-image">
+                <img
+                  src={trip.heroSrc}
+                  alt={trip.title}
+                  loading={i < 2 ? "eager" : "lazy"}
+                />
+              </div>
+            </Link>
+          ))}
+        </section>
       </main>
-    </div>
+    </>
   );
 }
