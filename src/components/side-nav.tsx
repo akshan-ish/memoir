@@ -29,25 +29,46 @@ export function SideNav({ sections, onExpandChange }: SideNavProps) {
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Build flat list of nav items
+  // Adapt density based on section count:
+  //   >30 sections: group by month (one line per month)
+  //   >10 sections: compact (day lines only, no sub-locations)
+  //   ≤10 sections: full (day + sub-location lines)
+  const groupByMonth = sections.length > 30;
+  const compact = !groupByMonth && sections.length > 10;
   const items: NavItem[] = [];
-  sections.forEach((section, si) => {
-    const locs = section.sublabel ? section.sublabel.split(" · ") : [];
-    if (locs.length <= 1) {
-      // Single or no location — one combined line
-      items.push({
-        type: "day",
-        dayLabel: shortDate(section.label),
-        locationLabel: locs[0] || undefined,
-        sectionIndex: si,
-      });
-    } else {
-      // Multiple locations — day line + sub-lines
-      items.push({ type: "day", dayLabel: shortDate(section.label), sectionIndex: si });
-      locs.forEach((loc) => {
-        items.push({ type: "location", dayLabel: shortDate(section.label), locationLabel: loc, sectionIndex: si });
-      });
-    }
-  });
+
+  if (groupByMonth) {
+    // Group sections by month, one nav item per month
+    let lastMonth = "";
+    sections.forEach((section, si) => {
+      const month = shortMonth(section.label);
+      if (month !== lastMonth) {
+        items.push({
+          type: "day",
+          dayLabel: month,
+          sectionIndex: si,
+        });
+        lastMonth = month;
+      }
+    });
+  } else {
+    sections.forEach((section, si) => {
+      const locs = section.sublabel ? section.sublabel.split(" · ") : [];
+      if (compact || locs.length <= 1) {
+        items.push({
+          type: "day",
+          dayLabel: shortDate(section.label),
+          locationLabel: locs[0] || undefined,
+          sectionIndex: si,
+        });
+      } else {
+        items.push({ type: "day", dayLabel: shortDate(section.label), sectionIndex: si });
+        locs.forEach((loc) => {
+          items.push({ type: "location", dayLabel: shortDate(section.label), locationLabel: loc, sectionIndex: si });
+        });
+      }
+    });
+  }
 
   // Track active section
   useEffect(() => {
@@ -164,7 +185,7 @@ export function SideNav({ sections, onExpandChange }: SideNavProps) {
         onMouseLeave={handleLeave}
         onMouseMove={handleMouseMove}
       >
-        <div className="sidenav-lines">
+        <div className={`sidenav-lines ${compact || groupByMonth ? "sidenav-lines--compact" : ""}`}>
           {items.map((item, i) => {
             const isActive = item.sectionIndex === activeIndex;
             const isClosest = closestItem === i;
@@ -219,5 +240,12 @@ function shortDate(label: string): string {
   }
   const m = label.match(/(\w+)\s+(\d+)/);
   if (m) return `${m[1].slice(0, 3)} ${m[2]}`;
+  return label;
+}
+
+function shortMonth(label: string): string {
+  // Extract month name from section label like "Wednesday, January 10"
+  const m = label.match(/(\w+)\s+\d+/);
+  if (m) return m[1].slice(0, 3);
   return label;
 }

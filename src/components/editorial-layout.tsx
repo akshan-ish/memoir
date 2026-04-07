@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Lightbox } from "@/components/lightbox";
 
 interface Photo {
   id: number;
@@ -122,55 +123,11 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 
 export function EditorialLayout({ photos, sections }: EditorialLayoutProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [fading, setFading] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const pendingIndex = useRef<number | null>(null);
-
-  const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => {
-    setClosing(true);
-    setTimeout(() => {
-      setLightboxIndex(null);
-      setClosing(false);
-    }, 280);
-  };
-
-  const navigate = useCallback(
-    (dir: 1 | -1) => {
-      if (lightboxIndex === null || fading) return;
-      const next = lightboxIndex + dir;
-      if (next >= 0 && next < photos.length) {
-        setFading(true);
-        pendingIndex.current = next;
-        setTimeout(() => {
-          setLightboxIndex(pendingIndex.current);
-          setFading(false);
-        }, 300);
-      }
-    },
-    [lightboxIndex, photos.length, fading]
-  );
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowRight") navigate(1);
-      if (e.key === "ArrowLeft") navigate(-1);
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handler);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handler);
-    };
-  }, [lightboxIndex, navigate]);
 
   return (
     <>
       <div className="editorial-flow">
         {(sections || [{ label: "", photos, startIndex: 0 }]).map((section, si) => {
-          // Track running photo index for placement continuity across sections
           const globalOffset = section.startIndex;
 
           return (
@@ -209,13 +166,13 @@ export function EditorialLayout({ photos, sections }: EditorialLayoutProps) {
                     >
                       <div
                         className="photo-card"
-                        onClick={() => openLightbox(globalIndex)}
+                        onClick={() => setLightboxIndex(globalIndex)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => e.key === "Enter" && openLightbox(globalIndex)}
+                        onKeyDown={(e) => e.key === "Enter" && setLightboxIndex(globalIndex)}
                       >
                         <img
-                          src={photo.src}
+                          src={photo.thumb}
                           alt=""
                           width={photo.width}
                           height={photo.height}
@@ -246,58 +203,12 @@ export function EditorialLayout({ photos, sections }: EditorialLayoutProps) {
         <div style={{ height: "20vh" }} />
       </div>
 
-      {/* Lightbox */}
       {lightboxIndex !== null && (
-        <div className={`lightbox-backdrop ${closing ? "lightbox-backdrop--closing" : ""}`} onClick={closeLightbox}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <div className="lightbox-image-wrap">
-              <img
-                src={photos[lightboxIndex].src}
-                alt=""
-                className={`shadow-lg ${fading ? "lightbox-img--fading" : ""}`}
-              />
-            </div>
-            <div
-              className="lightbox-meta flex items-start justify-between"
-              style={{
-                opacity: fading ? 0 : 1,
-                transition: "opacity 0.3s ease",
-              }}
-            >
-              <div>
-                {photos[lightboxIndex].city && (
-                  <p className="font-serif text-xl font-light">
-                    {photos[lightboxIndex].city}
-                  </p>
-                )}
-                {photos[lightboxIndex].date && (
-                  <p className="mt-1 font-mono text-[11px] font-light text-muted">
-                    {formatPhotoDate(photos[lightboxIndex].date!)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {lightboxIndex > 0 && (
-              <button
-                className="absolute -left-14 top-1/2 -translate-y-1/2 font-mono text-2xl text-muted transition-colors hover:text-foreground"
-                onClick={(e) => { e.stopPropagation(); navigate(-1); }}
-                aria-label="Previous photo"
-              >
-                ←
-              </button>
-            )}
-            {lightboxIndex < photos.length - 1 && (
-              <button
-                className="absolute -right-14 top-1/2 -translate-y-1/2 font-mono text-2xl text-muted transition-colors hover:text-foreground"
-                onClick={(e) => { e.stopPropagation(); navigate(1); }}
-                aria-label="Next photo"
-              >
-                →
-              </button>
-            )}
-          </div>
-        </div>
+        <Lightbox
+          photos={photos}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
     </>
   );

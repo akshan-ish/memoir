@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { LandingNav } from "@/components/landing-nav";
 let siteTitle = "Memoir";
 try { siteTitle = require("@/data/config.json").siteTitle; } catch {}
 
 export type Theme = "light" | "dark" | "parchment";
 export type Layout = "grid" | "editorial";
-export type Density = "all" | "mini";
 
 const THEME_LABELS: Record<Theme, string> = {
   light: "Light",
@@ -20,22 +20,14 @@ const LAYOUT_LABELS: Record<Layout, string> = {
   editorial: "Editorial",
 };
 
-const DENSITY_LABELS: Record<Density, string> = {
-  all: "All photos",
-  mini: "Curated 60",
-};
-
 interface TopBarProps {
   layout: Layout;
   onLayoutChange: (l: Layout) => void;
-  density: Density;
-  onDensityChange: (d: Density) => void;
-  hasCurated: boolean;
   tripSlug?: string;
-  allTrips?: string[];
+  allTrips?: { slug: string; title: string; dateRange: string }[];
 }
 
-export function TopBar({ layout, onLayoutChange, density, onDensityChange, hasCurated, tripSlug, allTrips }: TopBarProps) {
+export function TopBar({ layout, onLayoutChange, tripSlug, allTrips }: TopBarProps) {
   const [theme, setTheme] = useState<Theme>("light");
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -69,18 +61,6 @@ export function TopBar({ layout, onLayoutChange, density, onDensityChange, hasCu
     localStorage.setItem("memoir-layout", l);
   };
 
-  const switchDensity = (d: Density) => {
-    onDensityChange(d);
-    localStorage.setItem("memoir-density", d);
-  };
-
-  // Find prev/next trip for navigation
-  const currentIdx = allTrips?.indexOf(tripSlug || "") ?? -1;
-  const prevTrip = currentIdx > 0 ? allTrips![currentIdx - 1] : null;
-  const nextTrip = currentIdx >= 0 && currentIdx < (allTrips?.length ?? 0) - 1
-    ? allTrips![currentIdx + 1]
-    : null;
-
   return (
     <nav className="topbar">
       <div className="topbar-inner">
@@ -89,25 +69,10 @@ export function TopBar({ layout, onLayoutChange, density, onDensityChange, hasCu
             {siteTitle}
           </Link>
         </div>
+        {allTrips && allTrips.length > 1 && (
+          <LandingNav trips={allTrips} currentSlug={tripSlug} />
+        )}
         <div className="topbar-right" ref={dropdownRef}>
-          {allTrips && allTrips.length > 1 && (
-            <div className="topbar-trip-nav">
-              {prevTrip ? (
-                <Link href={`/trips/${prevTrip}`} className="topbar-nav-arrow">
-                  &larr;
-                </Link>
-              ) : (
-                <span className="topbar-nav-arrow topbar-nav-arrow--disabled">&larr;</span>
-              )}
-              {nextTrip ? (
-                <Link href={`/trips/${nextTrip}`} className="topbar-nav-arrow">
-                  &rarr;
-                </Link>
-              ) : (
-                <span className="topbar-nav-arrow topbar-nav-arrow--disabled">&rarr;</span>
-              )}
-            </div>
-          )}
           <button
             className="topbar-settings-toggle"
             onClick={() => setOpen(!open)}
@@ -143,23 +108,6 @@ export function TopBar({ layout, onLayoutChange, density, onDensityChange, hasCu
                   </button>
                 ))}
               </div>
-              {hasCurated && (
-                <>
-                  <div className="topbar-dropdown-divider" />
-                  <div className="topbar-dropdown-section">
-                    <span className="topbar-dropdown-label">Photos</span>
-                    {(Object.keys(DENSITY_LABELS) as Density[]).map((d) => (
-                      <button
-                        key={d}
-                        className={`topbar-dropdown-item ${d === density ? "topbar-dropdown-item--active" : ""}`}
-                        onClick={() => switchDensity(d)}
-                      >
-                        {DENSITY_LABELS[d]}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
             </div>
           )}
         </div>

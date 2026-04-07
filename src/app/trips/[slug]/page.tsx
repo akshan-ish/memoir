@@ -10,10 +10,22 @@ import {
 } from "@/lib/trip-utils";
 
 // --- MANIFESTS: added by /memoir skill (do not edit this block) ---
+import vietnamManifest from "@/data/manifest.json";
+import franceManifest from "@/data/manifest-france.json";
+import patagoniaManifest from "@/data/manifest-patagonia.json";
+import sloveniaCroatiaManifest from "@/data/manifest-slovenia-croatia.json";
+import weddingManifest from "@/data/manifest-wedding.json";
+import review2024Manifest from "@/data/manifest-2024-review.json";
 // --- END MANIFESTS ---
 
 const manifests: Record<string, TripManifest> = {
   // --- MANIFEST_ENTRIES: added by /memoir skill (do not edit this block) ---
+  vietnam: vietnamManifest as unknown as TripManifest,
+  france: franceManifest as unknown as TripManifest,
+  patagonia: patagoniaManifest as unknown as TripManifest,
+  "slovenia-croatia": sloveniaCroatiaManifest as unknown as TripManifest,
+  wedding: weddingManifest as unknown as TripManifest,
+  "2024-review": review2024Manifest as unknown as TripManifest,
   // --- END MANIFEST_ENTRIES ---
 };
 
@@ -33,7 +45,24 @@ export default async function TripPage({
   const manifest = manifests[slug];
 
   if (!manifest) {
-    return <div>Trip not found</div>;
+    return (
+      <main className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
+        <div className="pt-36 pb-24">
+          <p className="font-mono text-[11px] font-light uppercase tracking-[0.2em] text-muted">
+            Nothing here
+          </p>
+          <h1 className="mt-5 font-serif text-4xl font-light tracking-tight sm:text-5xl">
+            This trip doesn&rsquo;t exist yet
+          </h1>
+          <a
+            href="/"
+            className="mt-8 inline-block font-mono text-[11px] font-light tracking-wide text-muted transition-colors hover:text-foreground"
+          >
+            &larr; Back to all trips
+          </a>
+        </div>
+      </main>
+    );
   }
 
   const dateRangeFormatted = formatDateRange(
@@ -43,7 +72,14 @@ export default async function TripPage({
   const photos = preparePhotos(manifest);
   const sections = buildSections(photos);
 
-  const allSlugs = trips.map((t) => t.slug);
+  const allTripsMeta = trips.map((t) => {
+    const m = manifests[t.slug];
+    return {
+      slug: t.slug,
+      title: m?.title ?? t.slug,
+      dateRange: m ? formatDateRange(m.dateRange.start, m.dateRange.end) : "",
+    };
+  });
 
   return (
     <PageContent
@@ -53,7 +89,7 @@ export default async function TripPage({
       sections={sections}
       photos={photos}
       tripSlug={slug}
-      allTrips={allSlugs}
+      allTrips={allTripsMeta}
     />
   );
 }

@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MasonryGrid } from "@/components/masonry-grid";
 import { EditorialLayout } from "@/components/editorial-layout";
-import { TopBar, type Layout, type Density } from "@/components/top-bar";
+import { TopBar, type Layout } from "@/components/top-bar";
+
+type Density = "all" | "mini";
 import { SideNav } from "@/components/side-nav";
 let siteTitle = "Memoir";
 try { siteTitle = require("@/data/config.json").siteTitle; } catch {}
@@ -40,7 +42,7 @@ interface PageContentProps {
   sections: PhotoSection[];
   photos: Photo[];
   tripSlug?: string;
-  allTrips?: string[];
+  allTrips?: { slug: string; title: string; dateRange: string }[];
 }
 
 export function PageContent({
@@ -98,9 +100,6 @@ export function PageContent({
         <TopBar
           layout={layout}
           onLayoutChange={setLayout}
-          density={density}
-          onDensityChange={setDensity}
-          hasCurated={hasCurated}
           tripSlug={tripSlug}
           allTrips={allTrips}
         />
@@ -115,15 +114,35 @@ export function PageContent({
             {title}
           </h1>
 
-          <p className="header-reveal header-reveal-delay-2 mt-6 font-mono text-[11px] font-light uppercase tracking-[0.2em] text-muted sm:mt-8">
-            {activePhotos.length} photographs{density === "mini" && hasCurated ? " (curated)" : ""}
-          </p>
+          {hasCurated ? (
+            <div className="header-reveal header-reveal-delay-2 mt-6 flex items-center gap-0 font-mono text-[11px] font-light uppercase tracking-[0.2em] sm:mt-8">
+              <button
+                className={`bg-transparent border-none cursor-pointer p-0 font-mono text-[11px] font-light uppercase tracking-[0.2em] transition-colors ${density === "all" ? "text-foreground" : "text-muted hover:text-foreground"}`}
+                onClick={() => { setDensity("all"); localStorage.setItem("memoir-density", "all"); }}
+              >
+                All photographs ({photos.length})
+              </button>
+              <span className="text-muted mx-2">·</span>
+              <button
+                className={`bg-transparent border-none cursor-pointer p-0 font-mono text-[11px] font-light uppercase tracking-[0.2em] transition-colors ${density === "mini" ? "text-foreground" : "text-muted hover:text-foreground"}`}
+                onClick={() => { setDensity("mini"); localStorage.setItem("memoir-density", "mini"); }}
+              >
+                Curated ({photos.filter((p) => p.curated).length})
+              </button>
+            </div>
+          ) : (
+            <p className="header-reveal header-reveal-delay-2 mt-6 font-mono text-[11px] font-light uppercase tracking-[0.2em] text-muted sm:mt-8">
+              {activePhotos.length} photographs
+            </p>
+          )}
         </header>
 
-        {/* Divider */}
-        <div className="layout-divider">
-          <div className="layout-divider-line" />
-        </div>
+        {/* Divider — editorial only, grid has its own section borders */}
+        {layout === "editorial" && (
+          <div className="layout-divider">
+            <div className="layout-divider-line" />
+          </div>
+        )}
 
         {/* Photo content */}
         <section className="pb-24 sm:pb-32 lg:pb-40">

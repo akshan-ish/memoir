@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Lightbox } from "@/components/lightbox";
 
 interface Photo {
   id: number;
@@ -178,49 +179,6 @@ function SectionHeading({ section }: { section: PhotoSection }) {
 
 export function MasonryGrid({ sections, allPhotos }: MasonryGridProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [fading, setFading] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const pendingIndex = useRef<number | null>(null);
-
-  const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => {
-    setClosing(true);
-    setTimeout(() => {
-      setLightboxIndex(null);
-      setClosing(false);
-    }, 280);
-  };
-
-  const navigate = useCallback(
-    (dir: 1 | -1) => {
-      if (lightboxIndex === null || fading) return;
-      const next = lightboxIndex + dir;
-      if (next >= 0 && next < allPhotos.length) {
-        setFading(true);
-        pendingIndex.current = next;
-        setTimeout(() => {
-          setLightboxIndex(pendingIndex.current);
-          setFading(false);
-        }, 300);
-      }
-    },
-    [lightboxIndex, allPhotos.length, fading]
-  );
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowRight") navigate(1);
-      if (e.key === "ArrowLeft") navigate(-1);
-    };
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handler);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", handler);
-    };
-  }, [lightboxIndex, navigate]);
 
   return (
     <>
@@ -230,17 +188,14 @@ export function MasonryGrid({ sections, allPhotos }: MasonryGridProps) {
 
       {sections.map((section, si) => (
         <div key={si} className="photo-section">
-          {/* Section heading */}
           <SectionHeading section={section} />
-
-          {/* Photo grid */}
           <div className="offset-grid">
             {section.photos.map((photo, pi) => (
               <ScrollReveal key={photo.id} delay={(pi % 3) * 0.08}>
                 <PhotoCard
                   photo={photo}
                   index={section.startIndex + pi}
-                  onOpen={openLightbox}
+                  onOpen={setLightboxIndex}
                 />
               </ScrollReveal>
             ))}
@@ -248,58 +203,12 @@ export function MasonryGrid({ sections, allPhotos }: MasonryGridProps) {
         </div>
       ))}
 
-      {/* Lightbox */}
       {lightboxIndex !== null && (
-        <div className={`lightbox-backdrop ${closing ? "lightbox-backdrop--closing" : ""}`} onClick={closeLightbox}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <div className="lightbox-image-wrap">
-              <img
-                src={allPhotos[lightboxIndex].src}
-                alt=""
-                className={`shadow-lg ${fading ? "lightbox-img--fading" : ""}`}
-              />
-            </div>
-            <div
-              className="lightbox-meta flex items-start justify-between"
-              style={{
-                opacity: fading ? 0 : 1,
-                transition: "opacity 0.3s ease",
-              }}
-            >
-              <div>
-                {allPhotos[lightboxIndex].city && (
-                  <p className="font-serif text-xl font-light">
-                    {allPhotos[lightboxIndex].city}
-                  </p>
-                )}
-                {allPhotos[lightboxIndex].date && (
-                  <p className="mt-1 font-mono text-[11px] font-light text-muted">
-                    {formatPhotoDate(allPhotos[lightboxIndex].date!)}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {lightboxIndex > 0 && (
-              <button
-                className="absolute -left-14 top-1/2 -translate-y-1/2 font-mono text-2xl text-muted transition-colors hover:text-foreground"
-                onClick={(e) => { e.stopPropagation(); navigate(-1); }}
-                aria-label="Previous photo"
-              >
-                ←
-              </button>
-            )}
-            {lightboxIndex < allPhotos.length - 1 && (
-              <button
-                className="absolute -right-14 top-1/2 -translate-y-1/2 font-mono text-2xl text-muted transition-colors hover:text-foreground"
-                onClick={(e) => { e.stopPropagation(); navigate(1); }}
-                aria-label="Next photo"
-              >
-                →
-              </button>
-            )}
-          </div>
-        </div>
+        <Lightbox
+          photos={allPhotos}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
       )}
     </>
   );

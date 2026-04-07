@@ -11,6 +11,7 @@
   --skeleton: #eae9e5;
   --skeleton-shimmer: #f5f4f0;
   --lightbox-bg: rgba(250, 250, 248, 0.96);
+  --overlay-shadow: 0, 0, 0;
 }
 
 [data-theme="dark"] {
@@ -21,6 +22,7 @@
   --skeleton: #1e1e1c;
   --skeleton-shimmer: #2a2a28;
   --lightbox-bg: rgba(17, 17, 16, 0.96);
+  --overlay-shadow: 0, 0, 0;
 }
 
 [data-theme="parchment"] {
@@ -31,6 +33,7 @@
   --skeleton: #e4dac8;
   --skeleton-shimmer: #ebe2d2;
   --lightbox-bg: rgba(240, 232, 216, 0.96);
+  --overlay-shadow: 44, 36, 24;
 }
 
 @theme inline {
@@ -60,12 +63,10 @@ body {
 }
 
 .topbar-inner {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 1.25rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 }
 
 @media (min-width: 640px) {
@@ -229,10 +230,6 @@ body {
   pointer-events: none;
   z-index: 10;
   transition: background 0.4s ease;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
 }
 
 .edge-fade--top {
@@ -253,8 +250,6 @@ body {
     color-mix(in srgb, var(--background) 70%, transparent) 40%,
     transparent 100%
   );
-  mask-image: linear-gradient(to top, black 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 100%);
 }
 
 /* ─── Layout Divider ──────────────────────────────────────────────────── */
@@ -384,8 +379,8 @@ body {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.55) 0%,
-    rgba(0, 0, 0, 0.1) 40%,
+    rgba(var(--overlay-shadow), 0.55) 0%,
+    rgba(var(--overlay-shadow), 0.1) 40%,
     transparent 100%
   );
   opacity: 0;
@@ -580,6 +575,10 @@ body {
   width: 100%;
 }
 
+.sidenav-lines--compact .sidenav-line-btn {
+  padding: 0.05rem 0;
+}
+
 .sidenav-line-btn {
   display: flex;
   align-items: center;
@@ -738,6 +737,100 @@ body {
   border-radius: 3px;
 }
 
+/* ─── Landing Nav ─────────────────────────────────────────────────────── */
+
+.landing-nav {
+  display: flex;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.landing-nav-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: auto;
+  cursor: default;
+  padding: 0.5rem 0;
+}
+
+.landing-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+}
+
+.landing-nav-bar {
+  width: 1px;
+  background: var(--muted);
+  opacity: 0.3;
+  border-radius: 0.5px;
+  transition: height 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.15s ease, opacity 0.15s ease;
+  will-change: height;
+}
+
+.landing-nav-bar--active {
+  width: 14px;
+  border-radius: 1px;
+  background: var(--foreground);
+  opacity: 0.4;
+}
+
+.landing-nav-bar--hovered {
+  width: 14px;
+  border-radius: 1px;
+  background: var(--foreground) !important;
+  opacity: 0.8 !important;
+}
+
+.landing-nav-label {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%) translateY(-2px);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.landing-nav-label--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.landing-nav-title {
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--foreground);
+}
+
+.landing-nav-date {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .landing-nav {
+    display: none;
+  }
+}
+
 /* ─── Trip Carousel (Landing Page) ─────────────────────────────────────── */
 
 .trip-carousel-viewport {
@@ -761,8 +854,6 @@ body {
   left: 0;
   display: flex;
   justify-content: flex-start;
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 1.25rem 1.5rem;
   z-index: 5;
   pointer-events: none;
@@ -779,9 +870,15 @@ body {
 .trip-carousel {
   display: flex;
   gap: 3rem;
-  padding: 0 max(3rem, calc((100vw - 1200px) / 2 + 3rem));
-  padding-top: 35vh;
-  padding-bottom: 8vh;
+  padding: 20vh 1.5rem 8vh;
+}
+
+@media (min-width: 640px) {
+  .trip-carousel { padding-left: 2.5rem; padding-right: 2.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .trip-carousel { padding-left: 4rem; padding-right: 4rem; }
 }
 
 .trip-carousel-card {
@@ -901,6 +998,22 @@ body {
 
 .header-reveal-delay-2 {
   animation-delay: 0.3s;
+}
+
+/* ─── Focus Styles ────────────────────────────────────────────────────── */
+
+.photo-card:focus-visible {
+  outline: 1px solid var(--muted);
+  outline-offset: 2px;
+}
+
+.topbar-nav-arrow:focus-visible,
+.topbar-settings-toggle:focus-visible,
+.topbar-dropdown-item:focus-visible,
+.topbar-logo:focus-visible,
+.sidenav-line-btn:focus-visible {
+  outline: 1px solid var(--muted);
+  outline-offset: 2px;
 }
 
 /* ─── Reduced Motion ──────────────────────────────────────────────────── */
