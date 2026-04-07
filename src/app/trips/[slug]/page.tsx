@@ -72,14 +72,18 @@ export default async function TripPage({
   const photos = preparePhotos(manifest);
   const sections = buildSections(photos);
 
-  const allTripsMeta = trips.map((t) => {
-    const m = manifests[t.slug];
-    return {
-      slug: t.slug,
-      title: m?.title ?? t.slug,
-      dateRange: m ? formatDateRange(m.dateRange.start, m.dateRange.end) : "",
-    };
-  });
+  const allTripsMeta = trips
+    .map((t) => {
+      const m = manifests[t.slug];
+      return {
+        slug: t.slug,
+        title: m?.title ?? t.slug,
+        dateRange: m ? formatDateRange(m.dateRange.start, m.dateRange.end) : "",
+        startDate: m?.dateRange.start ?? "",
+      };
+    })
+    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+    .map(({ startDate, ...rest }) => rest);
 
   return (
     <PageContent
