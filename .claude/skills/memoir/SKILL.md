@@ -3,6 +3,26 @@ name: memoir
 description: Create a photo memoir from your trip photos. Handles first-time setup and adding new collections. Use when the user wants to create or add to their memoir site.
 disable-model-invocation: true
 argument-hint: [photo source - folder path, album name, or date range]
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - Bash(git clone *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(npm install*)
+  - Bash(npx next build*)
+  - Bash(npx next dev*)
+  - Bash(npx serve *)
+  - Bash(node scripts/*)
+  - Bash(osascript *)
+  - Bash(mkdir *)
+  - Bash(rm -f /tmp/memoir-export*)
+  - Bash(ls *)
+  - Bash(cat *)
+  - Bash(du *)
 ---
 
 # Memoir — Photo Collection Creator
