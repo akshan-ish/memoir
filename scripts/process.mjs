@@ -732,7 +732,7 @@ async function main() {
     locations: allCities,
     countries: allCountries,
     photoCount: manifest.length,
-    photos: manifest.map(({ hash, qualityScore, ...rest }) => rest),
+    photos: manifest.map(({ hash, ...rest }) => rest),
   };
 
   await fs.writeFile(

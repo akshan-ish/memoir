@@ -17,10 +17,29 @@ try { siteTitle = require("@/data/config.json").siteTitle; } catch {};
 export default function Home() {
   const tripData = trips.map((trip) => {
     const m = manifests[trip.slug];
-    // Pick a hero photo — the one with best aspect ratio for a cover
-    const hero = m.photos.reduce((best, p) =>
-      p.aspectRatio > best.aspectRatio ? p : best
-    , m.photos[0]);
+    // Pick a hero photo — representative and portrait-friendly
+    // Find the most photographed region (most representative location)
+    const regionCounts: Record<string, number> = {};
+    m.photos.forEach((p) => {
+      if (p.region) regionCounts[p.region] = (regionCounts[p.region] || 0) + 1;
+    });
+    const topRegion = Object.entries(regionCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+    // Score each photo: portrait-friendliness + quality + location match
+    const hero = m.photos.reduce((best, p) => {
+      const score = (candidate: typeof p) => {
+        // Prefer aspect ratios close to 3:4 (0.75) — penalize ultra-wide
+        const portraitFit = 1 - Math.min(Math.abs(candidate.aspectRatio - 0.75) * 1.5, 1);
+        // Quality score if available (0-1 normalized, assume max ~500)
+        const quality = (candidate as any).qualityScore
+          ? Math.min((candidate as any).qualityScore / 500, 1)
+          : 0.5;
+        // Bonus for being in the most photographed region
+        const locationMatch = candidate.region === topRegion ? 0.2 : 0;
+        return portraitFit * 0.4 + quality * 0.4 + locationMatch;
+      };
+      return score(p) > score(best) ? p : best;
+    }, m.photos[0]);
 
     return {
       slug: trip.slug,
