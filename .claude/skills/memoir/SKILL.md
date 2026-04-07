@@ -152,3 +152,10 @@ If it succeeds:
 "Your <trip-title> collection is ready! Run `npx next dev -p 3456` to see it at http://localhost:3456"
 
 If the build fails, diagnose and fix the issue before telling the user it's ready.
+
+## Important: Communication Style
+
+- Keep messages simple and friendly. The user doesn't need to know about internal details like marker comments, manifest files, or build internals.
+- Never mention "demo content", "sample trips", or "template cleanup" — the repo is a clean starting point, not a demo.
+- If the build has warnings that don't affect the user's trip, don't mention them.
+- Focus on what matters: their photos, their trip, their memoir.
