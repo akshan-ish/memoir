@@ -8,8 +8,6 @@ import { TopBar, type Layout } from "@/components/top-bar";
 
 type Density = "all" | "mini";
 import { SideNav } from "@/components/side-nav";
-let siteTitle = "Memoir";
-try { siteTitle = require("@/data/config.json").siteTitle; } catch {}
 
 interface Photo {
   id: number;
@@ -43,6 +41,7 @@ interface PageContentProps {
   photos: Photo[];
   tripSlug?: string;
   allTrips?: { slug: string; title: string; dateRange: string }[];
+  siteTitle?: string;
 }
 
 export function PageContent({
@@ -53,6 +52,7 @@ export function PageContent({
   photos,
   tripSlug,
   allTrips,
+  siteTitle = "Memoir",
 }: PageContentProps) {
   const [layout, setLayout] = useState<Layout>("grid");
   const [density, setDensity] = useState<Density>("all");
@@ -102,6 +102,7 @@ export function PageContent({
           onLayoutChange={setLayout}
           tripSlug={tripSlug}
           allTrips={allTrips}
+          siteTitle={siteTitle}
         />
 
         {/* Header */}

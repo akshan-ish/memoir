@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { LandingNav } from "@/components/landing-nav";
-let siteTitle = "Memoir";
-try { siteTitle = require("@/data/config.json").siteTitle; } catch {}
 
 export type Theme = "light" | "dark" | "parchment";
 export type Layout = "grid" | "editorial";
@@ -25,9 +23,10 @@ interface TopBarProps {
   onLayoutChange: (l: Layout) => void;
   tripSlug?: string;
   allTrips?: { slug: string; title: string; dateRange: string }[];
+  siteTitle?: string;
 }
 
-export function TopBar({ layout, onLayoutChange, tripSlug, allTrips }: TopBarProps) {
+export function TopBar({ layout, onLayoutChange, tripSlug, allTrips, siteTitle = "Memoir" }: TopBarProps) {
   const [theme, setTheme] = useState<Theme>("light");
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
