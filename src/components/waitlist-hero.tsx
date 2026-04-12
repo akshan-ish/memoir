@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 const STORAGE_KEY = "memoir-waitlist-signups";
 const ENDPOINT = process.env.NEXT_PUBLIC_WAITLIST_ENDPOINT;
+const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/akshan-ish/memoir";
 
 type Status = "idle" | "submitting" | "done" | "error";
 
@@ -25,7 +25,7 @@ export function WaitlistHero() {
     setStatus("submitting");
     setMessage(null);
 
-    // Always record locally so no signup is ever lost even if the remote is down.
+    // Record locally so a broken endpoint doesn't swallow signups.
     try {
       const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as Array<{ email: string; at: string }>;
       if (!existing.some((e) => e.email === trimmed)) {
@@ -43,7 +43,6 @@ export function WaitlistHero() {
         });
         if (!res.ok) throw new Error(`status ${res.status}`);
       } catch {
-        // We saved locally, so still treat as a soft success but show a subtle note.
         setStatus("done");
         setMessage("Saved. We'll be in touch when the app is ready.");
         return;
@@ -63,8 +62,9 @@ export function WaitlistHero() {
           A quiet record of<br />where you&rsquo;ve been.
         </h1>
         <p className="waitlist-subhead">
-          Memoir turns your camera roll into a calm, editorial photo book &mdash; automatically,
-          after the trip is over. No feeds. No likes. Just the photographs.
+          Memoir turns your camera roll into a calm, editorial photo book &mdash;
+          automatically, after the trip is over. No feeds. No likes. Just the
+          photographs.
         </p>
 
         <form className="waitlist-form" onSubmit={submit}>
@@ -95,10 +95,15 @@ export function WaitlistHero() {
         )}
 
         <div className="waitlist-secondary">
-          <span className="waitlist-or">or</span>
-          <Link href="/create" className="waitlist-try-link">
-            Make one now in your browser &rarr;
-          </Link>
+          <span className="waitlist-or">Already a Claude Code user?</span>
+          <a
+            href={GITHUB_URL}
+            className="waitlist-try-link"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Use the skill today &rarr;
+          </a>
         </div>
       </div>
     </section>

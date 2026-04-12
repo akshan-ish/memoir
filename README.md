@@ -4,11 +4,14 @@ A quiet record of where you've been.
 
 Turn your trip photos into a beautiful, self-contained photo memoir website. Point at a folder of photos — Memoir handles the rest.
 
-## Two ways to use it
+## How it works today
 
-**In your browser** &mdash; visit the site, go to `/create`, drop in a folder of photos, and you get a memoir laid out instantly. Everything stays on your device; nothing is uploaded.
+The memoir engine runs on your machine as a [Claude Code](https://claude.ai/code)
+skill. Point it at a folder of photos (or a Photos.app album) and it produces
+a self-contained static site with the photographs grouped by day and location.
 
-**With Claude Code** (the full pipeline) &mdash; deduplication, blur detection, curation, reverse geocoding and all. Great for large trips and for building a site with multiple collections.
+An iOS app that wraps the same ideas into a no-install experience is in the
+works — the website at `/` has a waitlist for that.
 
 ## Getting Started (Claude Code)
 
@@ -95,23 +98,23 @@ npx next build
 npx serve out -l 3456
 ```
 
-## Deploy to Vercel
+## Deploy to Vercel (for the waitlist site)
 
-The site is a static export, which Vercel hosts as-is.
+The site is a static export — Vercel picks it up automatically. Import the
+repo in the Vercel dashboard and accept the defaults.
 
-1. Push this repo to GitHub.
-2. Import the repo in the Vercel dashboard. The defaults from `vercel.json` are
-   correct (framework: Next.js, output: `out`).
-3. Optional: set `NEXT_PUBLIC_WAITLIST_ENDPOINT` to a URL that accepts
-   `POST { email }` (e.g. a Formspree form, Buttondown signup endpoint, or a
-   simple serverless function). If unset, waitlist signups are still recorded
-   locally in the visitor's `localStorage` so nothing is lost during testing.
+### Optional environment variables
 
-## Waitlist & browser creator
+- `NEXT_PUBLIC_WAITLIST_ENDPOINT` — a URL that accepts `POST { email }` (e.g.
+  a Formspree form, Buttondown signup endpoint, or a small serverless
+  function). If unset, signups are still recorded in the visitor's
+  `localStorage` so nothing is lost while testing.
+- `NEXT_PUBLIC_GITHUB_URL` — override the GitHub link used in the landing
+  page's "Use the skill today" and "View on GitHub" buttons. Defaults to the
+  upstream repo.
 
-- `/` is a waitlist landing page. Fill in `NEXT_PUBLIC_WAITLIST_ENDPOINT` to
-  collect signups; otherwise the form stores them in the visitor's browser.
-- `/create` is a client-side memoir creator. It uses the File API, `exifreader`,
-  Canvas (for thumbnails), and IndexedDB (to persist across reloads). No data
-  leaves the device. Location-name lookup is optional and uses the public
-  Nominatim service when enabled.
+### Landing photos
+
+Drop any JPG/PNG/WEBP files into `public/landing/`. They're picked up at
+build time (alphabetical order) and shown as the hero strip on the waitlist
+page. If the directory is empty or missing, the strip is hidden.

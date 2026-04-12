@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { formatDateRange } from "@/lib/trip-utils";
 import { loadTripRegistry, loadManifests, loadSiteTitle } from "@/lib/load-trips";
+import { loadLandingPhotos } from "@/lib/load-landing";
 import { LandingTheme } from "@/components/landing-theme";
 import { WaitlistHero } from "@/components/waitlist-hero";
+
+const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/akshan-ish/memoir";
 
 export default function Home() {
   const trips = loadTripRegistry();
   const manifests = loadManifests(trips);
   const siteTitle = loadSiteTitle();
+  const landingPhotos = loadLandingPhotos();
 
   const tripData = trips
     .filter((t) => manifests[t.slug])
@@ -44,7 +48,6 @@ export default function Home() {
         dateRange: formatDateRange(m.dateRange.start, m.dateRange.end),
         photoCount: m.photoCount,
         heroSrc: hero ? `${trip.photosDir}/${hero.src.split("/").pop()}` : "",
-        heroThumb: hero ? `${trip.photosDir}/${hero.thumb.split("/").pop()}` : "",
         regions: [...new Set(m.photos.map((p) => p.region).filter(Boolean))].slice(0, 3),
         startDate: m.dateRange.start,
       };
@@ -58,9 +61,101 @@ export default function Home() {
 
       <WaitlistHero />
 
+      {landingPhotos.length > 0 && (
+        <section className="landing-strip">
+          <div className="landing-strip-grid">
+            {landingPhotos.slice(0, 6).map((p, i) => (
+              <div
+                key={p.src}
+                className={`landing-strip-item landing-strip-item--${i % 3} header-reveal`}
+                style={{ animationDelay: `${0.3 + i * 0.08}s` }}
+              >
+                <img src={p.src} alt={p.name} loading={i < 2 ? "eager" : "lazy"} />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="landing-features">
+        <div className="landing-features-inner">
+          <p className="landing-section-eyebrow">What it does</p>
+          <h2 className="landing-section-title">
+            Your trip, quietly curated.
+          </h2>
+
+          <div className="landing-features-grid">
+            <div className="landing-feature">
+              <h3 className="landing-feature-title">Automatic curation</h3>
+              <p className="landing-feature-text">
+                Blurry shots, duplicates, and screenshots are filtered out.
+                A selection of the best photographs is chosen from what&rsquo;s left.
+              </p>
+            </div>
+
+            <div className="landing-feature">
+              <h3 className="landing-feature-title">Places, not coordinates</h3>
+              <p className="landing-feature-text">
+                Locations from GPS are reverse-geocoded into real place names and
+                grouped by day, so a Sunday in Marseille reads like a Sunday in Marseille.
+              </p>
+            </div>
+
+            <div className="landing-feature">
+              <h3 className="landing-feature-title">Editorial, not feed</h3>
+              <p className="landing-feature-text">
+                A typography-led layout in Cormorant and JetBrains Mono. Three themes:
+                light, dark, parchment. Negative space as a feature.
+              </p>
+            </div>
+
+            <div className="landing-feature">
+              <h3 className="landing-feature-title">Private by default</h3>
+              <p className="landing-feature-text">
+                Photos never leave your device. No account, no cloud, no tracking.
+                The final site is a folder of static HTML you can host anywhere.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-oss">
+        <div className="landing-oss-inner">
+          <p className="landing-section-eyebrow">Available today</p>
+          <h2 className="landing-section-title">
+            Open source. Runs on your machine.
+          </h2>
+          <p className="landing-oss-copy">
+            The iOS app is on the way. The memoir engine itself is open source
+            and available now as a <span className="landing-oss-emph">Claude Code skill</span>.
+            Point it at a folder of photos or a Photos.app album and it builds you
+            a static site in a few minutes.
+          </p>
+          <div className="landing-oss-actions">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="landing-oss-btn"
+            >
+              View on GitHub &rarr;
+            </a>
+            <a
+              href={`${GITHUB_URL}#getting-started`}
+              target="_blank"
+              rel="noreferrer"
+              className="landing-oss-btn landing-oss-btn--secondary"
+            >
+              Install instructions
+            </a>
+          </div>
+        </div>
+      </section>
+
       {tripData.length > 0 && (
         <section className="examples-section">
-          <header className="examples-header header-reveal" style={{ animationDelay: "0.4s" }}>
+          <header className="examples-header header-reveal" style={{ animationDelay: "0.2s" }}>
             <p className="examples-eyebrow">Examples</p>
             <h2 className="examples-title">Memoirs made with Memoir.</h2>
           </header>
@@ -71,14 +166,14 @@ export default function Home() {
                 key={trip.slug}
                 href={`/trips/${trip.slug}`}
                 className="example-card header-reveal"
-                style={{ animationDelay: `${0.5 + i * 0.08}s` }}
+                style={{ animationDelay: `${0.3 + i * 0.08}s` }}
               >
                 <div className="example-card-image">
                   {trip.heroSrc && (
                     <img
                       src={trip.heroSrc}
                       alt={trip.title}
-                      loading={i < 3 ? "eager" : "lazy"}
+                      loading="lazy"
                     />
                   )}
                 </div>
