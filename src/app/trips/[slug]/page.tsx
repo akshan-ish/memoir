@@ -1,38 +1,15 @@
 import { PageContent } from "@/components/page-content";
-import tripsData from "@/data/trips.json";
-
-const trips = tripsData as Array<{ slug: string; manifest: string; photosDir: string }>;
 import {
   formatDateRange,
   preparePhotos,
   buildSections,
-  type TripManifest,
 } from "@/lib/trip-utils";
-
-// --- MANIFESTS: added by /memoir skill (do not edit this block) ---
-import vietnamManifest from "@/data/manifest.json";
-import franceManifest from "@/data/manifest-france.json";
-import patagoniaManifest from "@/data/manifest-patagonia.json";
-import sloveniaCroatiaManifest from "@/data/manifest-slovenia-croatia.json";
-import weddingManifest from "@/data/manifest-wedding.json";
-import review2024Manifest from "@/data/manifest-2024-review.json";
-// --- END MANIFESTS ---
-
-const manifests: Record<string, TripManifest> = {
-  // --- MANIFEST_ENTRIES: added by /memoir skill (do not edit this block) ---
-  vietnam: vietnamManifest as unknown as TripManifest,
-  france: franceManifest as unknown as TripManifest,
-  patagonia: patagoniaManifest as unknown as TripManifest,
-  "slovenia-croatia": sloveniaCroatiaManifest as unknown as TripManifest,
-  wedding: weddingManifest as unknown as TripManifest,
-  "2024-review": review2024Manifest as unknown as TripManifest,
-  // --- END MANIFEST_ENTRIES ---
-};
+import { loadTripRegistry, loadManifests } from "@/lib/load-trips";
 
 export function generateStaticParams() {
-  const params = trips.map((trip) => ({ slug: trip.slug }));
+  const params = loadTripRegistry().map((trip) => ({ slug: trip.slug }));
   // Static export requires at least one param for dynamic routes;
-  // include a placeholder that resolves to "trip not found" when no trips exist yet
+  // include a placeholder that resolves to "trip not found" when no trips exist yet.
   return params.length > 0 ? params : [{ slug: "_" }];
 }
 
@@ -42,6 +19,8 @@ export default async function TripPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const trips = loadTripRegistry();
+  const manifests = loadManifests(trips);
   const manifest = manifests[slug];
 
   if (!manifest) {

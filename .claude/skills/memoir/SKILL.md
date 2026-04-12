@@ -135,7 +135,7 @@ Ask: "Look good? I'll add it to your memoir."
 
 ## Step 5: Register the Trip
 
-1. Read `src/data/trips.json` and add the new entry:
+Read `src/data/trips.json` and add the new entry:
 ```json
 {
   "slug": "<slug>",
@@ -144,9 +144,9 @@ Ask: "Look good? I'll add it to your memoir."
 }
 ```
 
-2. In both `src/app/page.tsx` and `src/app/trips/[slug]/page.tsx`, add the manifest import and entry using the marker comments:
-   - Add `import <slug>Manifest from "@/data/manifest-<slug>.json";` on the line BEFORE `// --- END MANIFESTS ---`
-   - Add `<slug>: <slug>Manifest as unknown as TripManifest,` on the line BEFORE `// --- END MANIFEST_ENTRIES ---`
+That's it — no page edits required. The pages read `trips.json` and the
+referenced manifest files from disk at build time (see `src/lib/load-trips.ts`),
+so the site picks up the new trip automatically on the next build.
 
 ## Step 6: Verify & Launch
 
