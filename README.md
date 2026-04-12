@@ -113,8 +113,13 @@ repo in the Vercel dashboard and accept the defaults.
   page's "Use the skill today" and "View on GitHub" buttons. Defaults to the
   upstream repo.
 
-### Landing photos
+### Product screenshots
 
-Drop any JPG/PNG/WEBP files into `public/landing/`. They're picked up at
-build time (alphabetical order) and shown as the hero strip on the waitlist
-page. If the directory is empty or missing, the strip is hidden.
+The waitlist page shows two iPhone screenshots under the hero. Save them as:
+
+- `public/screens/home.png` — the trips list / home screen
+- `public/screens/trip.png` — an individual trip detail view
+
+PNG with an alpha channel works well (the device frame shows through cleanly).
+If either file is missing the browser will render a broken-image placeholder,
+so either keep both there or swap the markup in `src/app/page.tsx`.

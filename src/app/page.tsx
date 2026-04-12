@@ -1,17 +1,26 @@
+import fs from "node:fs";
+import path from "node:path";
 import Link from "next/link";
 import { formatDateRange } from "@/lib/trip-utils";
 import { loadTripRegistry, loadManifests, loadSiteTitle } from "@/lib/load-trips";
-import { loadLandingPhotos } from "@/lib/load-landing";
 import { LandingTheme } from "@/components/landing-theme";
 import { WaitlistHero } from "@/components/waitlist-hero";
 
 const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/akshan-ish/memoir";
 
+function hasScreens(): { home: boolean; trip: boolean } {
+  const dir = path.join(process.cwd(), "public", "screens");
+  const exists = (f: string) => {
+    try { return fs.statSync(path.join(dir, f)).isFile(); } catch { return false; }
+  };
+  return { home: exists("home.png"), trip: exists("trip.png") };
+}
+
 export default function Home() {
   const trips = loadTripRegistry();
   const manifests = loadManifests(trips);
   const siteTitle = loadSiteTitle();
-  const landingPhotos = loadLandingPhotos();
+  const screens = hasScreens();
 
   const tripData = trips
     .filter((t) => manifests[t.slug])
@@ -61,18 +70,29 @@ export default function Home() {
 
       <WaitlistHero />
 
-      {landingPhotos.length > 0 && (
-        <section className="landing-strip">
-          <div className="landing-strip-grid">
-            {landingPhotos.slice(0, 6).map((p, i) => (
-              <div
-                key={p.src}
-                className={`landing-strip-item landing-strip-item--${i % 3} header-reveal`}
-                style={{ animationDelay: `${0.3 + i * 0.08}s` }}
-              >
-                <img src={p.src} alt={p.name} loading={i < 2 ? "eager" : "lazy"} />
-              </div>
-            ))}
+      {(screens.home || screens.trip) && (
+        <section className="landing-screens">
+          <div className="landing-screens-inner">
+            {screens.home && (
+              <figure className="landing-screen header-reveal" style={{ animationDelay: "0.2s" }}>
+                <img
+                  src="/screens/home.png"
+                  alt="Memoir iOS app home screen — a list of trips with cover photos"
+                  loading="eager"
+                />
+                <figcaption className="landing-screen-caption">All your trips, in one place.</figcaption>
+              </figure>
+            )}
+            {screens.trip && (
+              <figure className="landing-screen header-reveal" style={{ animationDelay: "0.35s" }}>
+                <img
+                  src="/screens/trip.png"
+                  alt="Memoir iOS app trip view — photos organized by day and location"
+                  loading="eager"
+                />
+                <figcaption className="landing-screen-caption">Grouped by day, labelled by place.</figcaption>
+              </figure>
+            )}
           </div>
         </section>
       )}
