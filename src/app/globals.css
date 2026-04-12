@@ -1357,6 +1357,17 @@ body {
   background: color-mix(in srgb, var(--foreground) 2%, transparent);
 }
 
+.create-drop-zone--busy {
+  cursor: default;
+  border-style: solid;
+  border-color: var(--border);
+}
+
+.create-drop-zone--busy:hover {
+  background: transparent;
+  border-color: var(--border);
+}
+
 .create-drop-zone-icon {
   font-family: var(--font-serif);
   font-size: 2rem;

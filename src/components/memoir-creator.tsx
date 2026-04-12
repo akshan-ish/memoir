@@ -135,25 +135,32 @@ export function MemoirCreator() {
 
   const ingestFiles = useCallback(async (files: FileList | File[]) => {
     const list = Array.from(files).filter((f) => f.type.startsWith("image/") || /\.(jpe?g|png|heic|heif|webp)$/i.test(f.name));
-    if (list.length === 0) return;
+    if (list.length === 0) {
+      setErrors(["No images found in that selection. Try JPG, PNG, WEBP, or HEIC (Safari)."]);
+      return;
+    }
 
     setProcessing({ done: 0, total: list.length });
     setErrors([]);
-    const newPhotos: ClientPhoto[] = [];
     const newErrors: string[] = [];
 
     for (let i = 0; i < list.length; i++) {
       const f = list[i];
       try {
         const photo = await processPhoto(f);
-        newPhotos.push(photo);
+        // Incremental append + sort — the grid updates in real time so the user
+        // sees progress immediately, which matters a lot on mobile where each
+        // HEIC can take several seconds.
+        setPhotos((prev) => [...prev, photo].sort(comparePhotosByDate));
       } catch (e) {
         newErrors.push(`${f.name} \u2014 couldn't decode (HEIC needs Safari, or try exporting as JPG)`);
       }
       setProcessing({ done: i + 1, total: list.length });
+      // Yield to the event loop so the progress bar actually paints on mobile
+      // browsers that otherwise coalesce renders during a tight async loop.
+      await new Promise((r) => setTimeout(r, 0));
     }
 
-    setPhotos((prev) => [...prev, ...newPhotos].sort(comparePhotosByDate));
     if (newErrors.length) setErrors(newErrors);
     setProcessing(null);
   }, []);
@@ -286,6 +293,24 @@ export function MemoirCreator() {
             </div>
           </div>
         </>
+      ) : processing ? (
+        // Empty state + processing: show a large, reassuring progress panel
+        // in place of the drop zone so the user sees immediate feedback.
+        <div className="create-drop-zone create-drop-zone--busy">
+          <div className="create-drop-zone-icon">&hellip;</div>
+          <div className="create-drop-zone-text">
+            Reading {processing.done} of {processing.total} photographs
+          </div>
+          <div className="create-drop-zone-hint">
+            EXIF, orientation, thumbnails &mdash; all on your device
+          </div>
+          <div className="create-progress-bar" style={{ marginTop: "2rem", maxWidth: 280, marginLeft: "auto", marginRight: "auto" }}>
+            <div
+              className="create-progress-bar-fill"
+              style={{ width: `${(processing.done / processing.total) * 100}%` }}
+            />
+          </div>
+        </div>
       ) : (
         <div
           className={`create-drop-zone ${dragActive ? "create-drop-zone--active" : ""}`}
@@ -312,7 +337,7 @@ export function MemoirCreator() {
         }}
       />
 
-      {processing && (
+      {processing && hasPhotos && (
         <div className="create-progress">
           <div className="create-progress-label">
             <span>Processing photographs</span>
