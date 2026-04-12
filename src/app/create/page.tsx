@@ -1,8 +1,6 @@
 import { LandingTheme } from "@/components/landing-theme";
 import { MemoirCreator } from "@/components/memoir-creator";
-
-let siteTitle = "Memoir";
-try { siteTitle = require("@/data/config.json").siteTitle; } catch {};
+import { loadSiteTitle } from "@/lib/load-trips";
 
 export const metadata = {
   title: "Make a memoir",
@@ -12,7 +10,7 @@ export const metadata = {
 export default function CreatePage() {
   return (
     <>
-      <LandingTheme siteTitle={siteTitle} />
+      <LandingTheme siteTitle={loadSiteTitle()} />
       <MemoirCreator />
     </>
   );

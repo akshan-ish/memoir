@@ -4,7 +4,7 @@ import {
   preparePhotos,
   buildSections,
 } from "@/lib/trip-utils";
-import { loadTripRegistry, loadManifests } from "@/lib/load-trips";
+import { loadTripRegistry, loadManifests, loadSiteTitle } from "@/lib/load-trips";
 
 export function generateStaticParams() {
   const params = loadTripRegistry().map((trip) => ({ slug: trip.slug }));
@@ -73,6 +73,7 @@ export default async function TripPage({
       photos={photos}
       tripSlug={slug}
       allTrips={allTripsMeta}
+      siteTitle={loadSiteTitle()}
     />
   );
 }
