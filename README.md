@@ -4,7 +4,13 @@ A quiet record of where you've been.
 
 Turn your trip photos into a beautiful, self-contained photo memoir website. Point at a folder of photos — Memoir handles the rest.
 
-## Getting Started
+## Two ways to use it
+
+**In your browser** &mdash; visit the site, go to `/create`, drop in a folder of photos, and you get a memoir laid out instantly. Everything stays on your device; nothing is uploaded.
+
+**With Claude Code** (the full pipeline) &mdash; deduplication, blur detection, curation, reverse geocoding and all. Great for large trips and for building a site with multiple collections.
+
+## Getting Started (Claude Code)
 
 You'll need [Claude Code](https://claude.ai/code) installed.
 
@@ -88,3 +94,24 @@ node scripts/process.mjs ~/path/to/photos \
 npx next build
 npx serve out -l 3456
 ```
+
+## Deploy to Vercel
+
+The site is a static export, which Vercel hosts as-is.
+
+1. Push this repo to GitHub.
+2. Import the repo in the Vercel dashboard. The defaults from `vercel.json` are
+   correct (framework: Next.js, output: `out`).
+3. Optional: set `NEXT_PUBLIC_WAITLIST_ENDPOINT` to a URL that accepts
+   `POST { email }` (e.g. a Formspree form, Buttondown signup endpoint, or a
+   simple serverless function). If unset, waitlist signups are still recorded
+   locally in the visitor's `localStorage` so nothing is lost during testing.
+
+## Waitlist & browser creator
+
+- `/` is a waitlist landing page. Fill in `NEXT_PUBLIC_WAITLIST_ENDPOINT` to
+  collect signups; otherwise the form stores them in the visitor's browser.
+- `/create` is a client-side memoir creator. It uses the File API, `exifreader`,
+  Canvas (for thumbnails), and IndexedDB (to persist across reloads). No data
+  leaves the device. Location-name lookup is optional and uses the public
+  Nominatim service when enabled.

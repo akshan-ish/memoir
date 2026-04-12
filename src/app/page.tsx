@@ -4,7 +4,7 @@ import tripsData from "@/data/trips.json";
 const trips = tripsData as Array<{ slug: string; manifest: string; photosDir: string }>;
 import { formatDateRange, type TripManifest } from "@/lib/trip-utils";
 import { LandingTheme } from "@/components/landing-theme";
-import { LandingNav } from "@/components/landing-nav";
+import { WaitlistHero } from "@/components/waitlist-hero";
 
 // --- MANIFESTS: added by /memoir skill (do not edit this block) ---
 import vietnamManifest from "@/data/manifest.json";
@@ -32,7 +32,6 @@ try { siteTitle = require("@/data/config.json").siteTitle; } catch {};
 export default function Home() {
   const tripData = trips.map((trip) => {
     const m = manifests[trip.slug];
-    // Pick a hero photo — use coverPhoto if set, otherwise score by portrait-friendliness + quality
     const coverFilename = (m as any).coverPhoto;
     const coverMatch = coverFilename
       ? m.photos.find((p) => p.src.endsWith(coverFilename))
@@ -66,57 +65,59 @@ export default function Home() {
       heroSrc: `${trip.photosDir}/${hero.src.split("/").pop()}`,
       heroThumb: `${trip.photosDir}/${hero.thumb.split("/").pop()}`,
       regions: [...new Set(m.photos.map((p) => p.region).filter(Boolean))].slice(0, 3),
+      startDate: m.dateRange.start,
     };
   });
 
-  // Sort newest first
-  tripData.sort((a, b) => {
-    const mA = manifests[a.slug];
-    const mB = manifests[b.slug];
-    return new Date(mB.dateRange.start).getTime() - new Date(mA.dateRange.start).getTime();
-  });
+  tripData.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
 
   return (
     <>
-      <LandingTheme siteTitle={siteTitle}>
-        <LandingNav trips={tripData.map((t) => ({ slug: t.slug, title: t.title, dateRange: t.dateRange }))} />
-      </LandingTheme>
-      <div className="carousel-edge-fade carousel-edge-fade--left" />
-      <div className="carousel-edge-fade carousel-edge-fade--right" />
-      <main className="trip-carousel-viewport">
-        <section className="trip-carousel">
+      <LandingTheme siteTitle={siteTitle} />
+
+      <WaitlistHero />
+
+      <section className="examples-section">
+        <header className="examples-header header-reveal" style={{ animationDelay: "0.4s" }}>
+          <p className="examples-eyebrow">Examples</p>
+          <h2 className="examples-title">Memoirs made with Memoir.</h2>
+        </header>
+
+        <div className="examples-grid">
           {tripData.map((trip, i) => (
             <Link
               key={trip.slug}
               href={`/trips/${trip.slug}`}
-              className="trip-carousel-card header-reveal"
-              style={{ animationDelay: `${0.2 + i * 0.15}s` }}
+              className="example-card header-reveal"
+              style={{ animationDelay: `${0.5 + i * 0.08}s` }}
             >
-              <div className="trip-carousel-info">
-                <h2 className="font-serif text-2xl font-light tracking-tight sm:text-3xl">
-                  {trip.title}
-                </h2>
-                <p className="mt-2 font-mono text-[10px] font-light tracking-wide text-muted">
-                  {trip.dateRange}
-                </p>
-                <p className="mt-1 font-mono text-[10px] font-light tracking-wide text-muted">
-                  {trip.photoCount} photographs
-                </p>
-                <p className="mt-2 font-serif text-sm font-light italic text-muted" style={{ minHeight: '1.25em' }}>
-                  {trip.regions.length > 0 ? trip.regions.join(" \u00b7 ") : "\u00a0"}
-                </p>
-              </div>
-              <div className="trip-carousel-image">
+              <div className="example-card-image">
                 <img
                   src={trip.heroSrc}
                   alt={trip.title}
-                  loading={i < 2 ? "eager" : "lazy"}
+                  loading={i < 3 ? "eager" : "lazy"}
                 />
+              </div>
+              <div className="example-card-info">
+                <h3 className="example-card-title">{trip.title}</h3>
+                <p className="example-card-meta">{trip.dateRange}</p>
+                <p className="example-card-meta">{trip.photoCount} photographs</p>
+                {trip.regions.length > 0 && (
+                  <p className="example-card-regions">
+                    {trip.regions.join(" \u00b7 ")}
+                  </p>
+                )}
               </div>
             </Link>
           ))}
-        </section>
-      </main>
+        </div>
+      </section>
+
+      <footer className="landing-footer">
+        <p className="landing-footer-text">
+          A quiet record of where you&rsquo;ve been.
+        </p>
+      </footer>
     </>
   );
 }
